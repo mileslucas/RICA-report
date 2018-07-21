@@ -4,8 +4,8 @@
 
 \title{RICA - Radio Imaging Combination Analyzer}
 \author{Miles Lucas}
-\affiliation{Iowa State Univeristy, Ames, Iowa}
-\affiliation{National Radio Astronomy Institute, Socorro, New Mexio}
+\affiliation{Iowa State University, Ames, Iowa}
+\affiliation{National Radio Astronomy Observatory, Socorro, New Mexico}
  
 
 \begin{abstract}
@@ -14,6 +14,10 @@
 
 \section{Introduction}
 
+In radio synthesis imaging a common problem arising from interferometry is the lack of zero-spacing data. Without this data, images lack total power information. Single dish radio telescopes retain this total power imformation but lack the angular resolution capabilities of radio interferometers. To solve this problem, astronomers combine the interferometry data with the total power data. This report seeks to characterize the effectiveness of different combination methods.
+
+There are four methods of combination that were tested. The first is CASA's \textit{feather} task. This takes the total power image and gets the Fourier components of the total power image. These components are then added to the interferometer data. The addition is weighted such that the total power components have all of the weight near the zero-spacing and taper off so that at around a third of the max UV distance the interferometer has all the weighting. This smooth combination helps to avoid weird artifacting from either component of the combination.
+
 \section{Methods}
 
 \section{Results}
@@ -21,7 +25,7 @@
 \section{Conclusion}
 
 
-\acknowledgements
-This work was funded by the National Science Foundation in partnership with the National Radio Astronomy Observatory and Associated Universities Incorporated. Thank you to Dr. Kumar Golap and Dr. Takahiro Tsutsumi for their guidance and assistance.
+\acknowledgments
+This work was funded by the National Science Foundation in partnership with the National Radio Astronomy Observatory and Associated Universities Incorporated. Thank you to Dr. Kumar Golap and Dr. Takahiro Tsutsumi for their guidance and assistance. 
 
 \end{document}
