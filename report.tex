@@ -25,7 +25,7 @@ The next method is using the total power image as the starting model in CASA's \
 % Need to rewrite this with correct information
 Another modification to the Cotton-Schwab cycle in order to combine images is by doing a modified joint deconvolution. In each major Cotton-Schwab cycle, the constructed model is convolved with the residual image and
 
-The last method of combination we use is \href{https://github.com/tp2vis/distribute}{\textit{tp2vis}}, which takes the total power image and spoofs a measurement set. The way \textit{tp2vis} accomplishes this is by taking Fourier data from the total power image and sparsely sampling the Fourier data at close spacings. This data can be used with the interferometer data in a joint deconvolution in \textit{tclean}. This should help fill the close-spacing gap created by the interferometer data and subsequently help increase total power information.
+The last method of combination we use is \textit{tp2vis}\footnote{https://github.com/tp2vis/distribute} \citep[see][]{2011ApJS..193...19K}, which takes the total power image and spoofs a measurement set. The way \textit{tp2vis} accomplishes this is by taking Fourier data from the total power image and sparsely sampling the Fourier data at close spacings. This data can be used with the interferometer data in a joint deconvolution in \textit{tclean}. This should help fill the close-spacing gap created by the interferometer data and subsequently help increase total power information.
 
 \section{Methods}
 
@@ -36,5 +36,7 @@ The last method of combination we use is \href{https://github.com/tp2vis/distrib
 
 \acknowledgments
 This work was funded by the National Science Foundation in partnership with the National Radio Astronomy Observatory and Associated Universities Incorporated. Thank you to Dr. Kumar Golap and Dr. Takahiro Tsutsumi for their guidance and assistance. 
+
+\bibliography{sources}
 
 \end{document}
