@@ -23,7 +23,7 @@ There are four methods of combination that were tested. The first is CASA\footno
 
 The next method is using the total power image as the starting model in CASA's \textit{tclean} task. In the Cotton-Schwab CLEAN algorithm (CSCLEAN), each major-cycle begins with a blank model image and constructs an image on it by using minor-cycle iterations. By using a starting model, this model is no longer blank, but is passed as a parameter. By using the total power image as the starting model, we can hope to retain the total power information through the CLEAN algorithm.
 
-% Need to rewrite this with correct information
+
 Another modification to the Cotton-Schwab cycle in order to combine images is by doing a modified joint deconvolution. In each major Cotton-Schwab cycle, the constructed model is feathered with the total power image before deconvolving. The total power image is also deconvolved and then the residuals are subtracted to get a model residual and a total power residual. These residuals are then degridded and transformed to finish the major cycle. See \autoref{jd-flow}.
 
 \begin{figure*}[t]
@@ -41,7 +41,7 @@ In order to evaluate the different combination methods, a metric needed to be cr
 Each combination was compared to both the true model and the single dish, total power image. Many models were tested with various extra parameters. Three models were generated from component lists. One has 4 point sources, one has a single Gaussian source, and one has a mixture of 4 point sources, one very broad Gaussian, and on off-center, stronger Gaussian. There were alos various models based off real structure, including M51 (based off an H-$\alpha$ image), Orion, RXJ1347, and a protoplanetary disk (PPD) simulation. \autoref{models} shows all of the models. It is important to note that these models have been regridded onto a common coordinate system that is not representative of the true astronomical targets. This was in effort to simplify the simulation process for creating measurement sets. 
 
 \begin{figure*}[t]
-    \includegraphics[width=\textwidth]{figures/models}
+    % \includegraphics[width=\textwidth]{figures/models}
     \caption{The models used for testing combination methods.}
     \label{models}
 \end{figure*}
