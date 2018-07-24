@@ -52,7 +52,7 @@ Each combination was compared to both the true model and the single dish, total 
     \label{fig:models}
 \end{figure*}
 
-The pipeline for testing these models was as follows:
+The code base for testing the effectiveness is hosted publicly for anyone to use\footnote{https://gitlab.com/mileslucas/rica}. In the source code there are many scripts and methods to facilitate simulating, combining, and comparing. Every model is described in \textit{src/\_models.py} with a dictionary defining the simulation and \textit{tclean} parameters. The pipeline for testing these models was as follows:
 \begin{enumerate}
     \item Simulate measurement set (MS) based on VLA
     \item Simulate single dish image by convolving model with Gaussian
@@ -60,6 +60,8 @@ The pipeline for testing these models was as follows:
     \item Do the combinations (feather, startmodel, joint deconvolution, and tp2vis)
     \item For each combination, do a comparison with the true model (convolved with the primary beam) and the single dish image
 \end{enumerate}
+and is codified in \textit{src/pipeline.py}. 
+
 
 \section{Results}
 
