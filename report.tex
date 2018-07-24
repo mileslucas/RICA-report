@@ -39,7 +39,7 @@ The last method of combination we use is \textit{tp2vis}\footnote{https://github
 In order to evaluate the different combination methods, a metric needed to be created and tested on a suite of models. The metrics used were CLEAN residuals, fidelity images, and a ratio of the power spectrum densities (PSD). The exigence for using PSDs is that the zero-spacing power is readily visible for every image. By using these ratios, the closer the ratio is to 1.0 at short spacings (when compared to the true model), the more accurate the combination. In addition, when compared with the total power image, it shows how much effective weight is given to the total power image in the combination. The ratio used is given as
 
 \begin{equation}
-    \text{Ratio} = \frac{\text{pow}_{test}}{\text{pow}_{ref}} \frac{\text{BA}_{ref}}{\text{BA}_{test}}
+    \text{ratio} = \frac{\text{pow}_{test}}{\text{pow}_{ref}} \frac{\text{BA}_{ref}}{\text{BA}_{test}}
     \label{eqn:ratio}
 \end{equation} 
 where pow is the power from the PSD, BA is the beam area, $ref$ refers to the reference image (model or SD), and $test$ refers to whichever image is being tested.
@@ -54,13 +54,17 @@ Each combination was compared to both the true model and the single dish, total 
 
 The code base for testing the effectiveness is hosted publicly for anyone to use\footnote{https://gitlab.com/mileslucas/rica}. In the source code there are many scripts and methods to facilitate simulating, combining, and comparing. Every model is described in \textit{src/\_models.py} with a dictionary defining the simulation and \textit{tclean} parameters. The pipeline for testing these models was as follows:
 \begin{enumerate}
-    \item Simulate measurement set (MS) based on VLA
+    \item Simulate measurement set (MS) based on VLA configurations
     \item Simulate single dish image by convolving model with Gaussian
     \item Image the MS 
     \item Do the combinations (feather, startmodel, joint deconvolution, and tp2vis)
     \item For each combination, do a comparison with the true model (convolved with the primary beam) and the single dish image
 \end{enumerate}
 and is codified in \textit{src/pipeline.py}. 
+
+In order to run a new model to test comparison methods, there are two general methods. If there exists a true model, simply add an entry to the models dictionary defining the simulation and clean parameters. It is also important to edit \textit{src/simulate.py} to accomadate the new model. Follow the existing code base for guidance. It is also important to create a copy of the model and regrid it to the common coordinate system (use an existing model to snag the coordinate system). The model can then be ran through the pipeline along with any other models using \textit{src/pipeline.py}.
+
+If there is no true model, it is still useful to test and compare against the total power image, alone. In this case, using a cleaned image, a measurement set, and a total power image with the \textit{src/combine.py} script will produce all of the combinations. These can then be compared using \textit{src/compare.py}. It is possible to edit \textit{src/pipeline.py} to accomadate special models, see how the PPD model is handled in the pipeline. 
 
 
 \section{Results}
