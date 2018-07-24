@@ -24,27 +24,42 @@ There are four methods of combination that were tested. The first is CASA\footno
 The next method is using the total power image as the starting model in CASA's \textit{tclean} task. In the Cotton-Schwab CLEAN algorithm (CSCLEAN), each major-cycle begins with a blank model image and constructs an image on it by using minor-cycle iterations. By using a starting model, this model is no longer blank, but is passed as a parameter. By using the total power image as the starting model, we can hope to retain the total power information through the CLEAN algorithm.
 
 
-Another modification to the Cotton-Schwab cycle in order to combine images is by doing a modified joint deconvolution. In each major Cotton-Schwab cycle, the constructed model is feathered with the total power image before deconvolving. The total power image is also deconvolved and then the residuals are subtracted to get a model residual and a total power residual. These residuals are then degridded and transformed to finish the major cycle. See \autoref{jd-flow}.
+Another modification to the Cotton-Schwab cycle in order to combine images is by doing a modified joint deconvolution. In each major Cotton-Schwab cycle, the constructed model is feathered with the total power image before deconvolving. The total power image is also deconvolved and then the residuals are subtracted to get a model residual and a total power residual. These residuals are then degridded and transformed to finish the major cycle. See \autoref{fig:jd-flow}.
 
 \begin{figure*}[t]
     \includegraphics[width=\textwidth]{figures/joint-deconvolve}
     \caption{A flow chart describing the joint-deconvolution approach to combining interfermoter and single dish data. Borrowed from Dr. Urvashi Rau.}
-    \label{jd-flow}
+    \label{fig:jd-flow}
 \end{figure*}
 
 The last method of combination we use is \textit{tp2vis}\footnote{https://github.com/tp2vis/distribute} , which takes the total power image and spoofs a measurement set. The way \textit{tp2vis} accomplishes this is by taking Fourier data from the total power image and sparsely sampling the Fourier data at close spacings \citep[see][]{2011ApJS..193...19K}. This data can be concatanated with the interferometer data and deconvolved in \textit{tclean}. This should help fill the close-spacing gap created by the interferometer data and subsequently help increase total power information.
 
 \section{Methods}
 
-In order to evaluate the different combination methods, a metric needed to be created and tested on a suite of models. The metrics used were CLEAN residuals, fidelity images, and a ratio of the power spectrum densities (PSD). The exigence for using PSDs is that the zero-spacing power is readily visible for every image. By using these ratios, the closer the ratio is to 1.0 at short spacings (when compared to the true model), the more accurate the combination. In addition, when compared with the total power image, it shows how much effective weight is given to the total power image in the combination. 
+In order to evaluate the different combination methods, a metric needed to be created and tested on a suite of models. The metrics used were CLEAN residuals, fidelity images, and a ratio of the power spectrum densities (PSD). The exigence for using PSDs is that the zero-spacing power is readily visible for every image. By using these ratios, the closer the ratio is to 1.0 at short spacings (when compared to the true model), the more accurate the combination. In addition, when compared with the total power image, it shows how much effective weight is given to the total power image in the combination. The ratio used is given as
 
-Each combination was compared to both the true model and the single dish, total power image. Many models were tested with various extra parameters. Three models were generated from component lists. One has 4 point sources, one has a single Gaussian source, and one has a mixture of 4 point sources, one very broad Gaussian, and on off-center, stronger Gaussian. There were alos various models based off real structure, including M51 (based off an H-$\alpha$ image), Orion, RXJ1347, and a protoplanetary disk (PPD) simulation. \autoref{models} shows all of the models. It is important to note that these models have been regridded onto a common coordinate system that is not representative of the true astronomical targets. This was in effort to simplify the simulation process for creating measurement sets. 
+\begin{equation}
+    \text{Ratio} = \frac{\text{pow}_{test}}{\text{pow}_{ref}} \frac{\text{BA}_{ref}}{\text{BA}_{test}}
+    \label{eqn:ratio}
+\end{equation} 
+where pow is the power from the PSD, BA is the beam area, $ref$ refers to the reference image (model or SD), and $test$ refers to whichever image is being tested.
+
+Each combination was compared to both the true model and the single dish, total power image. Many models were tested with various extra parameters. Three models were generated from component lists. One has 4 point sources, one has a single Gaussian source, and one has a mixture of 4 point sources, one very broad Gaussian, and on off-center, stronger Gaussian. There were alos various models based off real structure, including M51 (based off an H-$\alpha$ image), Orion, RXJ1347, and a protoplanetary disk (PPD) simulation. \autoref{fig:models} shows all of the models. It is important to note that these models have been regridded onto a common coordinate system that is not representative of the true astronomical targets. This was in effort to simplify the simulation process for creating measurement sets. 
 
 \begin{figure*}[t]
     % \includegraphics[width=\textwidth]{figures/models}
     \caption{The models used for testing combination methods.}
-    \label{models}
+    \label{fig:models}
 \end{figure*}
+
+The pipeline for testing these models was as follows:
+\begin{enumerate}
+    \item Simulate measurement set (MS) based on VLA
+    \item Simulate single dish image by convolving model with Gaussian
+    \item Image the MS 
+    \item Do the combinations (feather, startmodel, joint deconvolution, and tp2vis)
+    \item For each combination, do a comparison with the true model (convolved with the primary beam) and the single dish image
+\end{enumerate}
 
 \section{Results}
 
