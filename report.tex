@@ -2,6 +2,23 @@
 
 \usepackage{graphicx}
 \usepackage{hyperref}
+% Use savesym to get over incombpatibility with sinunitx and aastex
+\usepackage{savesym}
+\savesymbol{tablenum}
+\usepackage{siunitx}
+\restoresymbol{SIX}{tablenum}
+% redefine deluxetable for compatibility with the array package.
+\let\oldenddeluxetable\enddeluxetable
+\let\olddeluxetable\deluxetable
+\makeatletter
+\renewenvironment{deluxetable}[1]{
+\olddeluxetable{[#1]}
+\def\pt@format{#1}%
+}{\oldenddeluxetable}
+\makeatother
+
+\DeclareSIUnit[]{\jansky}{Jy}
+
 
 \begin{document}
 
@@ -19,52 +36,77 @@
 
 In radio synthesis imaging a common problem arising from interferometry is the lack of zero-spacing data. Without this data, images lack total power information. Single dish radio telescopes retain this total power imformation but lack the angular resolution capabilities of radio interferometers. To solve this problem, astronomers combine the interferometry data with the total power data. This report seeks to characterize the effectiveness of different combination methods.
 
-There are four methods of combination that were tested. The first is CASA\footnote{https://casa.nrao.edu}'s \textit{feather} task. This takes the total power image and gets the Fourier components of the total power image. These components are then added to the interferometer data. The addition is weighted such that the total power components have all of the weight near the zero-spacing and taper off so that at around a third of the max UV distance the interferometer has all the weighting. This smooth combination helps to avoid weird artifacting from either component of the combination.
+There are four methods of combination that were tested. The first is CASA\footnote{\url{https://casa.nrao.edu}}'s \textit{feather} task. This takes the total power image and gets the Fourier components of the total power image. These components are then added to the interferometer data. The addition is weighted such that the total power components have all of the weight near the zero-spacing and taper off so that at around a third of the max UV distance the interferometer has all the weighting. This smooth combination helps to avoid weird artifacting from either component of the combination.
 
 The next method is using the total power image as the starting model in CASA's \textit{tclean} task. In the Cotton-Schwab CLEAN algorithm (CSCLEAN), each major-cycle begins with a blank model image and constructs an image on it by using minor-cycle iterations. By using a starting model, this model is no longer blank, but is passed as a parameter. By using the total power image as the starting model, we can hope to retain the total power information through the CLEAN algorithm.
 
 
-Another modification to the Cotton-Schwab cycle in order to combine images is by doing a modified joint deconvolution. In each major Cotton-Schwab cycle, the constructed model is feathered with the total power image before deconvolving. The total power image is also deconvolved and then the residuals are subtracted to get a model residual and a total power residual. These residuals are then degridded and transformed to finish the major cycle. See \autoref{fig:jd-flow}.
+Another modification to the Cotton-Schwab cycle in order to combine images is by doing a modified joint deconvolution. In each major Cotton-Schwab cycle, the visibilites are gridded and inverse Fourier transformed to create an image residual, which is then feathered with the total power residual before deconvolving. The deconvolved model is then convolved with the single-dish beam and subtracted from the previous single-dish residual. The deconvolved model is also Fourier transformed, degridded, and subtracted from the visibilites to create a new residual image These residuals are then degridded and transformed to finish the major cycle. See \autoref{fig:jd-flow} for a visual flowchart of the process.
 
 \begin{figure*}[t]
-    \includegraphics[width=\textwidth]{figures/joint-deconvolve}
+    \plotone{figures/joint-deconvolve}
     \caption{A flow chart describing the joint-deconvolution approach to combining interfermoter and single dish data. Diagram from U.Rau \& N.Naik 2018 (in prep).}
     \label{fig:jd-flow}
 \end{figure*}
 
-The last method of combination we use is \textit{tp2vis}\footnote{https://github.com/tp2vis/distribute} , which takes the total power image and spoofs a measurement set. The way \textit{tp2vis} accomplishes this is by taking Fourier data from the total power image and sparsely sampling the Fourier data at close spacings \citep[see][]{2011ApJS..193...19K}. This data can be concatanated with the interferometer data and deconvolved in \textit{tclean}. This should help fill the close-spacing gap created by the interferometer data and subsequently help increase total power information.
+The last method of combination we use is \textit{tp2vis}\footnote{\url{https://github.com/tp2vis/distribute}} , which takes the total power image and spoofs a measurement set. The way \textit{tp2vis} accomplishes this is by taking Fourier data from the total power image and sparsely sampling the Fourier data at close spacings \citep[see][]{2011ApJS..193...19K}. This data can be concatanated with the interferometer data and deconvolved in \textit{tclean}. This should help fill the close-spacing gap created by the interferometer data and subsequently help increase total power information.
 
 \section{Methods}
 
-In order to evaluate the different combination methods, a metric needed to be created and tested on a suite of models. The metrics used were CLEAN residuals, fidelity images, and a ratio of the power spectrum densities (PSD). The exigence for using PSDs is that the zero-spacing power is readily visible for every image. By using these ratios, the closer the ratio is to 1.0 at short spacings (when compared to the true model), the more accurate the combination. In addition, when compared with the total power image, it shows how much effective weight is given to the total power image in the combination. The ratio used is given as
+In order to evaluate the different combination methods, a metric needed to be created and tested on a suite of models. The metrics used were CLEAN residuals, fidelity images, and a ratio of the power spectrum densities (PSD). The fidelities are given \autoref{eqn:fidelity} 
+ 
+\begin{equation}
+    \text{Fidelity}(i, j) = \frac{|\text{Model}(i, j)|}{\max{\left(|\text{Difference}(i, j)|, 0.7\times\text{rms}(\text{Difference})\right)}}
+    \label{eqn:fidelity}
+\end{equation} 
+
+where model is the reference image and diff is the difference between the test and reference images \citep[p.19]{almamemo}. The exigence for using PSDs is that the zero-spacing power is readily visible for every image. By using these ratios, the closer the ratio is to 1.0 at short spacings (when compared to the true model), the more accurate the combination. In addition, when compared with the total power image, it shows how much effective weight is given to the total power image in the combination. The ratio of the PSDs is given by \autoref{eqn:ratio}
 
 \begin{equation}
-    \text{ratio} = \frac{\text{pow}_{test}}{\text{pow}_{ref}} \frac{\text{BA}_{ref}}{\text{BA}_{test}}
+    \text{Ratio}(UV) = \frac{\text{Power}_{test}(UV)}{\text{Power}_{ref}(UV)} \cdot \frac{\text{BA}_{ref}}{\text{BA}_{test}}
     \label{eqn:ratio}
 \end{equation} 
-where pow is the power from the PSD, BA is the beam area, $ref$ refers to the reference image (model or SD), and $test$ refers to whichever image is being tested.
+where Power is the power from the PSD, BA is the beam area, $ref$ refers to the reference image (model or SD), and $test$ refers to whichever image is being tested.
 
 Each combination was compared to both the true model and the single dish, total power image. Many models were tested with various extra parameters. Three models were generated from component lists. One has 4 point sources, one has a single Gaussian source, and one has a mixture of 4 point sources, one very broad Gaussian, and on off-center, stronger Gaussian. There were alos various models based off real structure, including M51 (based off an H-$\alpha$ image), Orion, RXJ1347, and a protoplanetary disk (PPD) simulation. \autoref{fig:models} shows all of the models. It is important to note that these models have been regridded onto a common coordinate system that is not representative of the true astronomical targets. This was in effort to simplify the simulation process for creating measurement sets. 
 
 \begin{figure*}[t]
-    \includegraphics[width=\textwidth]{figures/models}
-    \caption{The models used for testing combination methods.}
+    \plotone{figures/models}
+    \caption{The models used for testing combination methods convolved with some restoring beam to show structure better.}
     \label{fig:models}
 \end{figure*}
 
-The code base for testing the effectiveness is hosted publicly for anyone to use\footnote{https://gitlab.com/mileslucas/rica}. In the source code there are many scripts and methods to facilitate simulating, combining, and comparing. Every model is described in \textit{src/\_models.py} with a dictionary defining the simulation and \textit{tclean} parameters. The pipeline for testing these models was as follows:
+The code base for testing the effectiveness is hosted publicly for anyone to use\footnote{\url{https://gitlab.com/mileslucas/rica}}. In the source code there are many scripts and methods to facilitate simulating, combining, and comparing. Every model is described in \textit{src/\_models.py} with a dictionary defining the simulation and \textit{tclean} parameters. The pipeline for testing these models was as follows:
 \begin{enumerate}
     \item Simulate measurement set (MS) based on VLA configurations
     \item Simulate single dish image by convolving model with Gaussian
     \item Image the MS 
     \item Do the combinations (feather, startmodel, joint deconvolution, and tp2vis)
-    \item For each combination, do a comparison with the true model (convolved with the primary beam) and the single dish image
+    \item For each combination, do a comparison with the true model (convolved with the restoring beam) and the single dish image
 \end{enumerate}
-and is codified in \textit{src/pipeline.py}. 
+and is implemented in \textit{src/pipeline.py}. 
+
+\subsection{Simulations and Deconvolution}
+All simulations were done using the VLA for the telescope model except for the PPD simulation, which was done using \textit{simalma} and was only simulated once. Each test model could define which of the VLA configurations to use, from A, B, BnA, C, CnB, D, and DnC. The spectral window for the simulations mimic the C-band at \SIrange{4.5}{5.5}{\giga\hertz} (central \SI{5}{\giga\hertz}) with 101 channels at \SI{10}{\mega\hertz} intervals. The field observed was J2000 21h28m31.0 \ang{45;00;00.0}. The observation date and time was 2018/06/01 at 12:00:00.0 UTC. The integration time was \SI{10}{\second} each with a total of \SI{30000}{\second}. Finally, the data was corrupted with \SI{1}{\milli\jansky} of simple noise.
+
+The single dish images were created by taking the true model and convolving with a Gaussian equivalent to the single dish beam at the given frequency. 
+\begin{equation}
+    FWHM(\nu, D) = \frac{\SI{3.66e8}{\meter\per\second}}{\nu \cdot D}
+    \label{eqn:sdbeam}
+\end{equation}
+\autoref{eqn:sdbeam} gives the Gaussian kernel full-width half-maximum (FWHM) in radians for a frequency in Hz and dish diameter in meters. For instance, to simulate data from the Green Bank Telescope (GBT) with a dish diameter of \SI{100}{\meter} at \SI{5}{\giga\hertz} gives a FWHM of \ang{;2;31}, which is in agreance with values from the GBT proposer's guide\footnote{p.9, \url{https://science.nrao.edu/facilities/gbt/proposing/GBTpg.pdf}}. Note that this is not the most accurate equation for other telescopes, because there is a constant involved in this equation based off the taper-length of the telescope's feedhorns. In addition, these single dish images have \num{5e-6} uniform noise added. 
+
+Each model defines its own paramaters for cleaning. As a default, a model simulated in VLA D configuration has an image size of \num{64} with a cell size of \SI{7.0}{\arcsec}. The restoring beam for the D configuration is approximately \ang{;;20.41} by \ang{;;15.60} so the cell accounts for half to a third of the beam width. In general, deconvolutions were done with very high numbers of iterations, relying on a threshold to stop the algorithm for consistency. This differs for the models tested at explicitly different cleaned levels.
+
+
+
+\subsection{Comparisons}
+Each comparison was ran with the same clean parameters for consistency. Because \textit{feather} does not actively clean, it has its own set of parameters, but all of the models tested used the default parameters. After all the combination permutations were imaged, they were compared against the true model convolved with the restoring beam and the single dish image alongside the uncombined interferometer image. All of the ratio were saved into individual CSV files for further analysis. In all, each model has 10 comparisons (5 agains the models and 5 against the single-dish images) and 4 separate cleans to perform. 
 
 In order to run a new model to test comparison methods, there are two general methods. If there exists a true model, simply add an entry to the models dictionary defining the simulation and clean parameters. It is also important to edit \textit{src/simulate.py} to accomadate the new model. Follow the existing code base for guidance. It is also important to create a copy of the model and regrid it to the common coordinate system (use an existing model to snag the coordinate system). The model can then be ran through the pipeline along with any other models using \textit{src/pipeline.py}.
 
 If there is no true model, it is still useful to test and compare against the total power image, alone. In this case, using a cleaned image, a measurement set, and a total power image with the \textit{src/combine.py} script will produce all of the combinations. These can then be compared using \textit{src/compare.py}. It is possible to edit \textit{src/pipeline.py} to accomadate special models, see how the PPD model is handled in the pipeline. 
+
 
 
 \section{Results}
