@@ -49,7 +49,13 @@ Another modification to the Cotton-Schwab cycle in order to combine images is by
     \label{fig:jd-flow}
 \end{figure*}
 
-The last method of combination we use is \textit{tp2vis}\footnote{\url{https://github.com/tp2vis/distribute}} , which takes the total power image and spoofs a measurement set. The way \textit{tp2vis} accomplishes this is by taking Fourier data from the total power image and sparsely sampling the Fourier data at close spacings \citep[see][]{2011ApJS..193...19K}. This data can be concatanated with the interferometer data and deconvolved in \textit{tclean}. This should help fill the close-spacing gap created by the interferometer data and subsequently help increase total power information.
+The last method of combination we use is \textit{tp2vis}\footnote{\url{https://github.com/tp2vis/distribute}} , which takes the total power image and spoofs a measurement set. The way \textit{tp2vis} accomplishes this is by taking Fourier data from the total power image and sparsely sampling the Fourier data at close spacings \citep[see][]{2011ApJS..193...19K}. This data can be concatanated with the interferometer data and deconvolved in \textit{tclean}. \autoref{fig:tp2vis} shows how the single-dish is simulated and concatanated with the interferometer data. This should help fill the close-spacing gap created by the interferometer data and subsequently help increase total power information.
+
+\begin{figure*}[t]
+    \includegraphics[width=\textwidth]{figures/tp2vis}
+    \caption{A look at how the visibilites are added through using tp2vis for a model simulated on the VLA A configuration. In the center of the interferometer image in the first plot shows sparsity that is filled in on the third plot. The second plot shows the approximation tp2vis makes of the single dish.}
+    \label{fig:tp2vis}
+\end{figure*}
 
 \section{Methods}
 
