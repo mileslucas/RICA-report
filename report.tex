@@ -2,20 +2,21 @@
 
 \usepackage{graphicx}
 \usepackage{hyperref}
-% Use savesym to get over incombpatibility with sinunitx and aastex
+\usepackage{csvsimple}
+%Use savesym to get over incombpatibility with sinunitx and aastex
 \usepackage{savesym}
 \savesymbol{tablenum}
 \usepackage{siunitx}
 \restoresymbol{SIX}{tablenum}
-% redefine deluxetable for compatibility with the array package.
-\let\oldenddeluxetable\enddeluxetable
-\let\olddeluxetable\deluxetable
-\makeatletter
-\renewenvironment{deluxetable}[1]{
-\olddeluxetable{[#1]}
-\def\pt@format{#1}%
-}{\oldenddeluxetable}
-\makeatother
+% % redefine deluxetable for compatibility with the array package.
+% \let\oldenddeluxetable\enddeluxetable
+% \let\olddeluxetable\deluxetable
+% \makeatletter
+% \renewenvironment{deluxetable}[1]{
+% \olddeluxetable{[#1]}
+% \def\pt@format{#1}%
+% }{\oldenddeluxetable}
+% \makeatother
 
 \DeclareSIUnit[]{\jansky}{Jy}
 
@@ -34,7 +35,9 @@
 
 \section{Introduction}
 
-In radio synthesis imaging a common problem arising from interferometry is the lack of zero-spacing data. Without this data, images lack total power information. Single dish radio telescopes retain this total power imformation but lack the angular resolution capabilities of radio interferometers. To solve this problem, astronomers combine the interferometry data with the total power data. This report seeks to characterize the effectiveness of different combination methods.
+In radio synthesis imaging a common problem arising from interferometry is the lack of zero-spacing data. Without this data, images lack total power information. Single dish radio telescopes retain this total power imformation but lack the angular resolution capabilities of radio interferometers. To solve this problem, astronomers combine the interferometry data with the total power data. This report seeks to characterize the effectiveness of different combination methods and parameters.
+
+The parameters analyzed were multiscale deconvolution versus normal Hogbom deconvolution, the effect of single-dish size on the combination, masking, and number of total iterations (i.e. depth of clean). One of the previous assumptions is that if the single-dish UV-coverage does not adequately complement the inteferometer UV-coverage, feathering will not be effective. Another assumption is that simple point structures should not see much discrepency in paramters or methods. Therefore, more complex, fluffy structure ought to show more distinction in results.
 
 There are four methods of combination that were tested. The first is CASA\footnote{\url{https://casa.nrao.edu}}'s \textit{feather} task. This takes the total power image and gets the Fourier components of the total power image. These components are then added to the interferometer data. The addition is weighted such that the total power components have all of the weight near the zero-spacing and taper off so that at around a third of the max UV distance the interferometer has all the weighting. This smooth combination helps to avoid weird artifacting from either component of the combination.
 
@@ -102,7 +105,7 @@ The single dish images were created by taking the true model and convolving with
 \end{equation}
 \autoref{eqn:sdbeam} gives the Gaussian kernel full-width half-maximum (FWHM) in radians for a frequency in Hz and dish diameter in meters. For instance, to simulate data from the Green Bank Telescope (GBT) with a dish diameter of \SI{100}{\meter} at \SI{5}{\giga\hertz} gives a FWHM of \ang{;2;31}, which is in agreance with values from the GBT proposer's guide\footnote{p.9, \url{https://science.nrao.edu/facilities/gbt/proposing/GBTpg.pdf}}. Note that this is not the most accurate equation for other telescopes, because there is a constant involved in this equation based off the taper-length of the telescope's feedhorns. In addition, these single dish images have \num{5e-6} uniform noise added. 
 
-Each model defines its own paramaters for cleaning. As a default, a model simulated in VLA D configuration has an image size of \num{64} with a cell size of \SI{7.0}{\arcsec}. The restoring beam for the D configuration is approximately \ang{;;20.41} by \ang{;;15.60} so the cell accounts for half to a third of the beam width. In general, deconvolutions were done with very high numbers of iterations, relying on a threshold to stop the algorithm for consistency. This differs for the models tested at explicitly different cleaned levels.
+Each model defines its own paramaters for cleaning. \autoref{tab:model-params} lists every single parameter for each model. As a default, a model simulated in VLA D configuration has an image size of \num{64} with a cell size of \SI{7.0}{\arcsec}. The restoring beam for the D configuration is approximately \ang{;;20.41} by \ang{;;15.60} so the cell accounts for half to a third of the beam width. In general, deconvolutions were done with very high numbers of iterations, relying on a threshold to stop the algorithm for consistency. This differs for the models tested at explicitly different cleaned levels.
 
 
 
@@ -124,5 +127,51 @@ If there is no true model, it is still useful to test and compare against the to
 This work was funded by the National Science Foundation in partnership with the National Radio Astronomy Observatory and Associated Universities Incorporated. Thank you to Dr. Kumar Golap and Dr. Takahiro Tsutsumi for their guidance and assistance. 
 
 \bibliography{sources}
+
+\appendix
+\section{Model Parameters}
+\label{sec:models}
+
+\begin{longrotatetable}
+    
+    \label{tab:model-params}
+    \begin{deluxetable}{cccllllllclc}
+        \tablecaption{The parameters for every model ran through the pipeline}
+        \tablehead{
+        \colhead{Name} & \colhead{Model} &	\colhead{Config} &	\colhead{SD size} &	\colhead{imsize} &	\colhead{cell} &	\colhead{niter} &	\colhead{cycleniter} &	\colhead{threshold} &	\colhead{deconvolver} & \colhead{scales} & \colhead{mask} \\
+        }
+        
+        \startdata
+        points           & points   & VLA d  & 100 m   & {[}64, 64{]}     & 7.00arcsec & 100000 & 100        & 1e-5Jy    & hogbom      &                    & No   \\
+gauss            & gauss    & VLA d  & 100 m   & {[}64, 64{]}     & 7.00arcsec & 100000 & 100        & 1e-5Jy    & hogbom      &                    & No   \\
+combined         & combined & VLA d  & 100 m   & {[}64, 64{]}     & 7.00arcsec & 100000 & 100        & 1e-5Jy    & hogbom      &                    & No   \\
+combined-n0      & combined & VLA d  & 100 m   & {[}64, 64{]}     & 7.00arcsec & 0      & 100        & 1e-5Jy    & hogbom      &                    & No   \\
+combined-n100    & combined & VLA d  & 100 m   & {[}64, 64{]}     & 7.00arcsec & 100    & 100        & 1e-5Jy    & hogbom      &                    & No   \\
+combined-n1000   & combined & VLA d  & 100 m   & {[}64, 64{]}     & 7.00arcsec & 1000   & 100        & 1e-5Jy    & hogbom      &                    & No   \\
+combined-ms      & combined & VLA d  & 100 m   & {[}64, 64{]}     & 7.00arcsec & 100000 & 100        & 1e-5Jy    & multiscale  & {[}0, 3, 10, 30{]} & No   \\
+m51              & m51      & VLA d  & 100 m   & {[}128, 128{]}   & 7.00arcsec & 100000 & 100        & 1e-12Jy   & hogbom      &                    & No   \\
+m51-ms           & m51      & VLA d  & 100 m   & {[}128, 128{]}   & 7.00arcsec & 100000 & 100        & 1e-12Jy   & multiscale  & {[}0, 3, 10, 30{]} & No   \\
+m51-b            & m51      & VLA b  & 100 m   & {[}1400, 1400{]} & 0.65arcsec & 100000 & 100        & 1e-12Jy   & hogbom      &                    & No   \\
+m51-b-ms         & m51      & VLA b  & 100 m   & {[}1400, 1400{]} & 0.65arcsec & 100000 & 100        & 1e-12Jy   & multiscale  & {[}0, 3, 10, 30{]} & No   \\
+orion-b          & orion    & VLA b  & 100 m   & {[}700, 700{]}   & 0.65arcsec & 100000 & 400        & 1e-9Jy    & hogbom      &                    & Yes  \\
+orion-b-n0       & orion    & VLA b  & 100 m   & {[}700, 700{]}   & 0.65arcsec & 0      & 100        & 1e-9Jy    & hogbom      &                    & Yes  \\
+orion-b-n100     & orion    & VLA b  & 100 m   & {[}700, 700{]}   & 0.65arcsec & 100    & 100        & 1e-9Jy    & hogbom      &                    & Yes  \\
+orion-b-n1000    & orion    & VLA b  & 100 m   & {[}700, 700{]}   & 0.65arcsec & 1000   & 100        & 1e-9Jy    & hogbom      &                    & Yes  \\
+orion-b-ms       & orion    & VLA b  & 100 m   & {[}700, 700{]}   & 0.65arcsec & 100000 & 400        & 1e-9Jy    & multiscale  & {[}0, 3, 10, 50{]} & Yes  \\
+orion-b-25       & orion    & VLA b  & 25 m    & {[}700, 700{]}   & 0.65arcsec & 100000 & 400        & 1e-9Jy    & hogbom      &                    & Yes  \\
+orion-b-25-n0    & orion    & VLA b  & 25 m    & {[}700, 700{]}   & 0.65arcsec & 0      & 100        & 1e-9Jy    & hogbom      &                    & Yes  \\
+orion-b-25-n100  & orion    & VLA b  & 25 m    & {[}700, 700{]}   & 0.65arcsec & 100    & 100        & 1e-9Jy    & hogbom      &                    & Yes  \\
+orion-b-25-n1000 & orion    & VLA b  & 25 m    & {[}700, 700{]}   & 0.65arcsec & 1000   & 100        & 1e-9Jy    & hogbom      &                    & Yes  \\
+orion-b-25-ms    & orion    & VLA b  & 25 m    & {[}700, 700{]}   & 0.65arcsec & 100000 & 400        & 1e-9Jy    & multiscale  & {[}0, 3, 10, 30{]} & Yes  \\
+orion-c          & orion    & VLA c  & 100 m   & {[}216, 216{]}   & 2.12arcsec & 100000 & 400        & 1e-9Jy    & hogbom      &                    & No   \\
+RXJ1347          & RXJ1347  & VLA a  & 100 m   & {[}2268, 2268{]} & 0.20arcsec & 100000 & 100        & 1e-6Jy    & hogbom      &                    & No   \\
+RXJ1347-masked   & RXJ1347  & VLA a  & 100 m   & {[}2268, 2268{]} & 0.20arcsec & 100000 & 100        & 1e-6Jy    & hogbom      &                    & Yes  \\
+ppd              & ppd      & ALMA   & ACA     & {[}192, 192{]}   & 0.01arcsec & 100000 & 100        & 1e-7Jy    & hogbom      &                    & No  
+        \enddata
+        \end{deluxetable}
+\end{longrotatetable}
+
+\section{Model Results}
+\label{sec:model-results}
 
 \end{document}
