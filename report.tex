@@ -77,7 +77,7 @@ where Power is the power from the PSD, BA is the beam area, $ref$ refers to the 
 Each combination was compared to both the true model and the single dish, total power image. Many models were tested with various extra parameters. Three models were generated from component lists. One has 4 point sources, one has a single Gaussian source, and one has a mixture of 4 point sources, one very broad Gaussian, and on off-center, stronger Gaussian. There were also various models based off real structure, including M51 (based off an H-$\alpha$ image), Orion, RXJ1347, and a protoplanetary disk (PPD) simulation. \autoref{fig:models} shows all of the models. It is important to note that these models have been regridded onto a common coordinate system that is not representative of the true astronomical targets. This was in effort to simplify the simulation process for creating measurement sets. 
 
 \begin{figure*}[t]
-    \plotone{figures/models}
+    \includegraphics[width=\textwidth]{figures/models}
     \caption{The models used for testing combination methods convolved with some restoring beam to show structure better.}
     \label{fig:models}
 \end{figure*}
@@ -93,11 +93,11 @@ The code base for testing the effectiveness is hosted publicly for anyone to use
 and is implemented in \textit{src/pipeline.py}. 
 
 \subsection{Simulations and Deconvolution}
-All simulations were done using the VLA for the telescope model except for the PPD simulation, which was done using \textit{simalma} and was only simulated once. Each test model could define which of the VLA configurations to use, from A, B, BnA, C, CnB, D, and DnC. The spectral window for the simulations mimic the C-band at \SIrange{4.5}{5.5}{\giga\hertz} (central \SI{5}{\giga\hertz}) with 101 channels at \SI{10}{\mega\hertz} intervals. The field observed was J2000 21h28m31.0 \ang{45;00;00.0}. The observation date and time was 2018/06/01 at 12:00:00.0 UTC. The integration time was \SI{10}{\second} each with a total of \SI{30000}{\second}. Finally, the data was corrupted with \SI{1}{\milli\jansky} of simple noise.
+All simulations were done using the VLA for the telescope model except for the PPD simulation, which was done using \textit{simalma} and was only simulated once. Each test model could define which of the VLA configurations to use, from A, B, BnA, C, CnB, D, and DnC. The spectral window for the simulations mimic the VLA C-band at \SIrange{4.5}{5.5}{\giga\hertz} (central \SI{5}{\giga\hertz}) with 101 channels at \SI{10}{\mega\hertz} intervals. The field observed was J2000 21h28m31.0 \ang{45;00;00.0}. The observation date and time was 2018/06/01 at 12:00:00.0 UTC. The integration time was \SI{10}{\second} each with a total of \SI{30000}{\second}. Finally, the data was corrupted with \SI{1}{\milli\jansky} of simple noise.
 
 The single dish images were created by taking the true model and convolving with a Gaussian equivalent to the single dish beam at the given frequency. 
 \begin{equation}
-    FWHM(\nu, D) = \frac{\SI{3.66e8}{\meter\per\second}}{\nu \cdot D}
+    \text{FWHM}(\nu, D) = \frac{\SI{3.66e8}{\meter\per\second}}{\nu \cdot D}
     \label{eqn:sdbeam}
 \end{equation}
 \autoref{eqn:sdbeam} gives the Gaussian kernel full-width half-maximum (FWHM) in radians for a frequency in Hz and dish diameter in meters. For instance, to simulate data from the Green Bank Telescope (GBT) with a dish diameter of \SI{100}{\meter} at \SI{5}{\giga\hertz} gives a FWHM of \ang{;2;31}, which is in agreeance with values from the GBT proposer's guide\footnote{p.9, \url{https://science.nrao.edu/facilities/gbt/proposing/GBTpg.pdf}}. Note that this is not the most accurate equation for other telescopes, because there is a constant involved in this equation based off the taper-length of the telescope's feedhorns. In addition, these single dish images have \num{5e-6} uniform noise added. 
@@ -109,7 +109,7 @@ Each model defines its own parameters for cleaning. \autoref{tab:model-params} l
 \subsection{Comparisons}
 Each comparison was ran with the same clean parameters for consistency. Because \textit{feather} does not actively clean, it has its own set of parameters, but all of the models tested used the default parameters. After all the combination permutations were imaged, they were compared against the true model convolved with the restoring beam and the single dish image alongside the uncombined interferometer image. All of the ratio were saved into individual CSV files for further analysis. In all, each model has 10 comparisons (5 against the models and 5 against the single-dish images) and 4 separate cleans to perform. 
 
-In order to run a new model to test comparison methods, there are two general methods. If there exists a true model, simply add an entry to the models dictionary defining the simulation and clean parameters. It is also important to edit \textit{src/simulate.py} to accommodate the new model. Follow the existing code base for guidance. It is also important to create a copy of the model and regrid it to the common coordinate system (use an existing model to snag the coordinate system). The model can then be ran through the pipeline along with any other models using \textit{src/pipeline.py}.
+In order to run a new model to test comparison methods, there are two general methods. If there exists a true model, simply add an entry to the models dictionary defining the simulation and clean parameters. It is also important to edit \textit{src/simulate.py} to accommodate the new model. Follow the existing code base for guidance. It is also important to create a copy of the model and regrid it to the common coordinate system (use an existing model to retrieve the coordinate system). The model can then be ran through the pipeline along with any other models using \textit{src/pipeline.py}.
 
 If there is no true model, it is still useful to test and compare against the total power image, alone. In this case, using a cleaned image, a measurement set, and a total power image with the \textit{src/combine.py} script will produce all of the combinations. These can then be compared using \textit{src/compare.py}. It is possible to edit \textit{src/pipeline.py} to accommodate special models, see how the PPD model is handled in the pipeline. 
 
@@ -117,11 +117,32 @@ If there is no true model, it is still useful to test and compare against the to
 
 \section{Results}
 
+\begin{figure*}[ht]
+    \includegraphics[width=\textwidth]{figures/sd-size-comp}
+    \caption{The left two plots are ratios for each combination method between two different single dish sizes. The horizontal line marks the ideal ratio for close UV spacing. The right plot shows the UV coverage of the interferometer with the coverage of the \SI{100}{\meter} and \SI{25}{\meter} single dishes overlaid.}
+    \label{fig:sd-size}
+\end{figure*}
+
+For fidelity images and ratios of every comparison, see \autoref{sec:model-results}. This section will only comment on a few models and comparison highlighting trends. The effect of single dish size was apparent on the accuracy of combinations. \autoref{fig:sd-size} shows how the ratios compare between the \SI{100}{\meter} single dish size for the Orion model in B configuration and the \SI{25}{\meter} single dish size of the same model. 
+
+\begin{figure*}[ht]
+    \includegraphics[width=\textwidth]{figures/iter-cover}
+    \caption{A comparison showing the effect on the combinations due to the depth of cleaning for two models, `combined' and `orion-b'. The dashed black line represents the ideal ratio for the true model comparison. }
+    \label{fig:iters}
+\end{figure*}
+
+Next, \autoref{fig:iters} shows the effect that depth of cleaning has on the power ratios. Each row corresponds to each model and each column is a depth of cleaning based on the number of iterations of deconvolution. The `combined' model is a much simpler model than the `orion-b' model. The parameters for each of these models with different iterations is shown in \autoref{tab:model-params}. 
+
+
 \section{Conclusion}
+
+From the results of \autoref{fig:sd-size} it is notable that \textit{feather} does not work as well for small single dish sizes. Both start model and joint deconvolution combination methods are able to do better than the plain interferometer with the small dish, but still do not reach that ideal ratio that is possible for the larger single dish. Looking at the coverage of the single dishes, the \SI{25}{\meter} dish does not overlap with the interferometer data at all. This could be the reason why feather fails so much and why joint deconvolution and start model are not quite as good, either. Future studies might find the point at which there is enough overlay for each method to ``succeed". 
+
+From the results of \autoref{fig:iters} there are a few conclusions to be made. First, the joint deconvolution worked well regardless of the depth of cleaning for both models. Even completely dirty images had great total power information. After some amount of cleaning, \textit{feather} quickly rose to the same level as joint deconvolution and in the `combined' model, using a start model started working after some cleaning. In the simpler, `combined' model, all combination methods converged at high enough iterations- even the interferometer image. However, for the more complex, `orion-b' model, start model never converged and the values of the ratios remained erratic even at full cleaning depth. For future studies, it would be nice to try and see if joint deconvolution works for dirty images of many more models. In conjunction with the study on single dish size, there were no combinations that retrieved the total power information well from the dirty image due to insufficient single dish coverage\footnote{see \href{https://gitlab.com/mileslucas/rica/blob/master/docs/static/ratios/orion-b-25-n0__model.csv}{'orion-b-25-n0' ratio data}}
 
 
 \acknowledgments
-This work was funded by the National Science Foundation in partnership with the National Radio Astronomy Observatory and Associated Universities Incorporated. Thank you to Dr. Kumar Golap and Dr. Takahiro Tsutsumi for their guidance and assistance. 
+Thank you to Dr. Kumar Golap and Dr. Takahiro Tsutsumi for their guidance and assistance. This work was funded by the National Science Foundation in partnership with the National Radio Astronomy Observatory and Associated Universities Incorporated.
 
 \software{\href{https://casa.nrao.edu}{CASA}, \href{https://github.com/tp2vis/distribute}{tp2vis} \citep{2011ApJS..193...19K}}
 
@@ -131,6 +152,7 @@ This work was funded by the National Science Foundation in partnership with the 
 \section{Model Parameters}
 \label{sec:models}
 
+The following table describes the parameters used for cleaning the model images. The only exception is the model `combined-sp', which additionally uses specmode='cube' and nchan=-1 to facilitate cube imaging. For more details, look at the \textit{src/\_models.py} file, which this table is generated from.
 \begin{longrotatetable}
     
     \label{tab:model-params}
@@ -148,10 +170,13 @@ This work was funded by the National Science Foundation in partnership with the 
 
 \section{Model Results}
 \label{sec:model-results}
+
+For data tables of every single comparison, visit the \href{https://gitlab.com/mileslucas/rica/tree/master/docs/static/ratios}{RICA repository}.
+
 \input{fig1set}
 \begin{figure*}[h!]
-	\plotone{figures/results/combined-ms__model_vs_feather}
-	\caption{Comparison of feather combination to the true model for combined simulation. The ratio is \autoref{eqn:ratio}. The black ticks are error bars on a scaled uncertainty based on \autoref{eqn:ratio-err}. The vertical lines are the maximum UV distance of the interferometer at the longest and shortest wavelengths, respectively. The complete figure set (125 figures) is available \href{https://gitlab.com/mileslucas/rica-report/tree/master/figures/results}{online}}
+	\includegraphics[width=\textwidth]{figures/results/combined-ms__model_vs_feather}
+	\caption{Comparison of feather combination to the true model for combined simulation. The ratio is \autoref{eqn:ratio}. The black ticks are error bars on a scaled uncertainty based on \autoref{eqn:ratio-err}. The vertical lines are the maximum UV distance of the interferometer at the longest and shortest wavelengths, respectively. The complete figure set (125 figures) is available at the \href{https://gitlab.com/mileslucas/rica/tree/master/docs/static/figures/results}{RICA repository}.}
 \end{figure*}
 
 \end{document}
