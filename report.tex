@@ -77,7 +77,7 @@ where model is the reference image and diff is the difference between the test a
 
 where Power is the power from the PSD, BA is the beam area, $ref$ refers to the reference image (model or SD), and $test$ refers to whichever image is being tested. The uncertainty given is \autoref{eqn:ratio-err} such that the uncertainty is the reciprocal of the average of the PSDs. 
 
-Each combination was compared to both the true model and the single dish, total power image. Many models were tested with various extra parameters. Three models were generated from component lists. One has 4 point sources, one has a single Gaussian source, and one has a mixture of 4 point sources, one very broad Gaussian, and on off-center, stronger Gaussian. There were also various models based off real structure, including M51 (based off an H-$\alpha$ image), Orion, RXJ1347, and a protoplanetary disk (PPD) simulation. \autoref{fig:models} shows all of the models. It is important to note that these models have been regridded onto a common coordinate system that is not representative of the true astronomical targets. This was in effort to simplify the simulation process for creating measurement sets. 
+Each combination was compared to both the true model and the single dish, total power image. Many models were tested with various extra parameters. Three models were generated from component lists. One has 4 point sources, one has a single Gaussian source, and one has a mixture of 4 point sources, one very broad Gaussian, and on off-center, stronger Gaussian. There were also various models based off real structure, including M51 (based off an H-$\alpha$ image), Orion, RXJ1347, which is a source displaying the Sunyaev-Zel'dovich effect \citep{2016PASJ...68...88K}, and a protoplanetary disk (PPD) simulation. \autoref{fig:models} shows all of the models. It is important to note that these models have been regridded onto a common coordinate system that is not representative of the true astronomical targets. This was in effort to simplify the simulation process for creating measurement sets. 
 
 \begin{figure*}[t]
     \includegraphics[width=\textwidth]{figures/models}
@@ -142,8 +142,8 @@ For fidelity images and ratios of every comparison, see \autoref{sec:model-resul
 Next, \autoref{fig:iters} shows the effect that depth of cleaning has on the power ratios. Each row corresponds to each model and each column is a depth of cleaning based on the number of iterations of deconvolution. The `combined' model is a much simpler model than the `orion-b' model. First, the joint deconvolution worked well regardless of the depth of cleaning for both models. Even completely dirty images had great total power information. After some amount of cleaning, \textit{feather} quickly rose to the same level as joint deconvolution and in the `combined' model, using a start model started working after some cleaning. In the simpler, `combined' model, all combination methods converged at high enough iterations- even the interferometer image. However, for the more complex, `orion-b' model, start model never converged and the values of the ratios remained erratic even at full cleaning depth.
 
 \begin{figure*}[ht]
-    \includegraphics[width=0.5\textwidth]{figures/M51-B-Multiscale}
-    \includegraphics[width=0.5\textwidth]{figures/Orion-B-Multiscale}
+    \includegraphics[width=0.49\textwidth]{figures/M51-B-Multiscale}
+    \includegraphics[width=0.49\textwidth]{figures/Orion-B-Multiscale}
     \caption{A comparison showing the effect on the combinations due to multiscale deconvolution for two models, `m51-b' and `orion-b'. The dashed black line represents the ideal ratio for the true model comparison. }
     \label{fig:ms}
 \end{figure*}
