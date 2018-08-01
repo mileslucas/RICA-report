@@ -8,15 +8,6 @@
 \savesymbol{tablenum}
 \usepackage{siunitx}
 \restoresymbol{SIX}{tablenum}
-% % redefine deluxetable for compatibility with the array package.
-% \let\oldenddeluxetable\enddeluxetable
-% \let\olddeluxetable\deluxetable
-% \makeatletter
-% \renewenvironment{deluxetable}[1]{
-% \olddeluxetable{[#1]}
-% \def\pt@format{#1}%
-% }{\oldenddeluxetable}
-% \makeatother
 
 \DeclareSIUnit[]{\jansky}{Jy}
 
@@ -39,7 +30,7 @@ In radio synthesis imaging a common problem arising from interferometry is the l
 
 The parameters analyzed were multiscale deconvolution versus normal Hogbom deconvolution, the effect of single-dish size on the combination, masking, and number of total iterations (i.e. depth of clean). One of the previous assumptions is that if the single-dish UV-coverage does not adequately complement the inteferometer UV-coverage, feathering will not be effective. Another assumption is that simple point structures should not see much discrepency in paramters or methods. Therefore, more complex, fluffy structure ought to show more distinction in results.
 
-There are four methods of combination that were tested. The first is CASA\footnote{\url{https://casa.nrao.edu}}'s \textit{feather} task. This takes the total power image and gets the Fourier components of the total power image. These components are then added to the interferometer data. The addition is weighted such that the total power components have all of the weight near the zero-spacing and taper off so that at around a third of the max UV distance the interferometer has all the weighting. This smooth combination helps to avoid weird artifacting from either component of the combination.
+There are four methods of combination that were tested. The first is CASA's \textit{feather} task. The process of feathering starts with regridding the lower resolution to the higher resolution image. Each is then Fourier transformed and gridded, while the lower resolution data is scaled by the ratio of the clean beams (high resolution/low resolution). The high-resolution grid is then added to this, scaled by a weighting that starts at 0 and increases to 1 as the wavelength increases. This final combination is then inverse Fourier transformed back into the image plane. 
 
 The next method is using the total power image as the starting model in CASA's \textit{tclean} task. In the Cotton-Schwab CLEAN algorithm (CSCLEAN), each major-cycle begins with a blank model image and constructs an image on it by using minor-cycle iterations. By using a starting model, this model is no longer blank, but is passed as a parameter. By using the total power image as the starting model, we can hope to retain the total power information through the CLEAN algorithm.
 
@@ -52,7 +43,7 @@ Another modification to the Cotton-Schwab cycle in order to combine images is by
     \label{fig:jd-flow}
 \end{figure*}
 
-The last method of combination we use is \textit{tp2vis}\footnote{\url{https://github.com/tp2vis/distribute}} , which takes the total power image and spoofs a measurement set. The way \textit{tp2vis} accomplishes this is by taking Fourier data from the total power image and sparsely sampling the Fourier data at close spacings \citep[see][]{2011ApJS..193...19K}. This data can be concatanated with the interferometer data and deconvolved in \textit{tclean}. \autoref{fig:tp2vis} shows how the single-dish is simulated and concatanated with the interferometer data. This should help fill the close-spacing gap created by the interferometer data and subsequently help increase total power information.
+The last method of combination we use is \textit{tp2vis}, which takes the total power image and spoofs a measurement set. The way \textit{tp2vis} accomplishes this is by taking Fourier data from the total power image and sparsely sampling the Fourier data at close spacings \citep[see][]{2011ApJS..193...19K}. This data can be concatanated with the interferometer data and deconvolved in \textit{tclean}. \autoref{fig:tp2vis} shows how the single-dish is simulated and concatanated with the interferometer data. This should help fill the close-spacing gap created by the interferometer data and subsequently help increase total power information.
 
 \begin{figure*}[t]
     \includegraphics[width=\textwidth]{figures/tp2vis}
@@ -126,6 +117,8 @@ If there is no true model, it is still useful to test and compare against the to
 \acknowledgments
 This work was funded by the National Science Foundation in partnership with the National Radio Astronomy Observatory and Associated Universities Incorporated. Thank you to Dr. Kumar Golap and Dr. Takahiro Tsutsumi for their guidance and assistance. 
 
+\software{\href{https://casa.nrao.edu}{CASA}, \href{https://github.com/tp2vis/distribute}{tp2vis} \citep{2011ApJS..193...19K}}
+
 \bibliography{sources}
 
 \appendix
@@ -149,5 +142,10 @@ This work was funded by the National Science Foundation in partnership with the 
 
 \section{Model Results}
 \label{sec:model-results}
+\input{fig1set}
+\begin{figure*}[h!]
+	\plotone{figures/results/combined-ms__model_vs_feather}
+	\caption{The complete figure set (125 figures) is available \href{https://gitlab.com/mileslucas/rica-report/tree/master/figures/results}{online}}
+\end{figure*}
 
 \end{document}
