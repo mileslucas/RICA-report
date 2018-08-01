@@ -24,6 +24,8 @@
 
 \end{abstract}
 
+%---------------------------------------------------------------------------------------------------
+
 \section{Introduction}
 
 In radio synthesis imaging a common problem arising from interferometry is the lack of zero-spacing data. Without this data, images lack total power information. Single dish radio telescopes retain this total power information but lack the angular resolution capabilities of radio interferometers. To solve this problem, astronomers combine the interferometry data with the total power data. This report seeks to characterize the effectiveness of different combination methods and parameters.
@@ -49,6 +51,8 @@ The last method of combination we use is \textit{tp2vis}, which takes the total 
     \caption{A look at how the visibilities are added through using tp2vis for a model simulated on the VLA A configuration. In the center of the interferometer image in the first plot shows sparsity that is filled in on the third plot. The second plot shows the approximation tp2vis makes of the single dish.}
     \label{fig:tp2vis}
 \end{figure*}
+
+%---------------------------------------------------------------------------------------------------
 
 \section{Methods}
 
@@ -92,7 +96,9 @@ The code base for testing the effectiveness is hosted publicly for anyone to use
 and is implemented in \textit{src/pipeline.py}. 
 
 \subsection{Simulations and Deconvolution}
-All simulations were done using the VLA for the telescope model except for the PPD simulation, which was done using \textit{simalma} and was only simulated once. Each test model could define which of the VLA configurations to use, from A, B, BnA, C, CnB, D, and DnC. The spectral window for the simulations mimic the VLA C-band at \SIrange{4.5}{5.5}{\giga\hertz} (central \SI{5}{\giga\hertz}) with 101 channels at \SI{10}{\mega\hertz} intervals. The field observed was J2000 21h28m31.0 \ang{45;00;00.0}. The observation date and time was 2018/06/01 at 12:00:00.0 UTC. The integration time was \SI{10}{\second} each with a total of \SI{30000}{\second}. Finally, the data was corrupted with \SI{1}{\milli\jansky} of simple noise.
+All simulations were done using the VLA for the telescope model except for the PPD simulation, which was done using \textit{simalma}. Each test model could define which of the VLA configurations to use, from A, B, BnA, C, CnB, D, and DnC. The spectral window for the simulations mimic the VLA C-band at \SIrange{4.5}{5.5}{\giga\hertz} (central \SI{5}{\giga\hertz}) with 101 channels at \SI{10}{\mega\hertz} intervals. The field observed was J2000 21h28m31.0 \ang{45;00;00.0}. The observation date and time was 2018/06/01 at 12:00:00.0 UTC. The integration time was \SI{10}{\second} each with a total of \SI{30000}{\second}. Finally, the data was corrupted with \SI{1}{\milli\jansky} of simple noise.
+
+The PPD model was created by following the \href{https://casaguides.nrao.edu/index.php/Protoplanetary_Disk_Simulation_(CASA_5.1)}{CASA guide for simulation}. The base model is from \citet{2005ApJ...619.1114W}, which is a simulation of ALMA data at \SI{672}{\giga\hertz}. This involved one pointing at J2000 18h00m00.031s -22d59m59.6s observed for \SI{20}{\minute} in the ALMA configuration 20. The total power image was created using \textit{simalma} to recreate the Atacama Compact Array (ACA) with its \SI{12}{\meter} single dish telescopes. 
 
 The single dish images were created by taking the true model and convolving with a Gaussian equivalent to the single dish beam at the given frequency. 
 \begin{equation}
@@ -114,6 +120,9 @@ If there is no true model, it is still useful to test and compare against the to
 
 
 
+
+%---------------------------------------------------------------------------------------------------
+
 \section{Results}
 
 \begin{figure*}[ht]
@@ -125,7 +134,7 @@ If there is no true model, it is still useful to test and compare against the to
 For fidelity images and ratios of every comparison, see \autoref{sec:model-results}. This section will only comment on a few models and comparison highlighting trends. The effect of single dish size was apparent on the accuracy of combinations. \autoref{fig:sd-size} shows how the ratios compare between the \SI{100}{\meter} single dish size for the Orion model in B configuration and the \SI{25}{\meter} single dish size of the same model. Notably, \textit{feather} does not work as well for small single dish sizes. Both start model and joint deconvolution combination methods are able to do better than the plain interferometer with the small dish, but still do not reach that ideal ratio that is possible for the larger single dish. Looking at the coverage of the single dishes, the \SI{25}{\meter} dish does not overlap with the interferometer data at all.
 
 \begin{figure*}[ht]
-    \includegraphics[width=\textwidth]{figures/iter-cover}
+    \includegraphics[width=\textwidth]{figures/iter-plot}
     \caption{A comparison showing the effect on the combinations due to the depth of cleaning for two models, `combined' and `orion-b'. The dashed black line represents the ideal ratio for the true model comparison. }
     \label{fig:iters}
 \end{figure*}
@@ -133,13 +142,17 @@ For fidelity images and ratios of every comparison, see \autoref{sec:model-resul
 Next, \autoref{fig:iters} shows the effect that depth of cleaning has on the power ratios. Each row corresponds to each model and each column is a depth of cleaning based on the number of iterations of deconvolution. The `combined' model is a much simpler model than the `orion-b' model. First, the joint deconvolution worked well regardless of the depth of cleaning for both models. Even completely dirty images had great total power information. After some amount of cleaning, \textit{feather} quickly rose to the same level as joint deconvolution and in the `combined' model, using a start model started working after some cleaning. In the simpler, `combined' model, all combination methods converged at high enough iterations- even the interferometer image. However, for the more complex, `orion-b' model, start model never converged and the values of the ratios remained erratic even at full cleaning depth.
 
 \begin{figure*}[ht]
-    \includegraphics[width=\textwidth]{figures/ms-compare}
+    \includegraphics[width=0.5\textwidth]{figures/M51-B-Multiscale}
+    \includegraphics[width=0.5\textwidth]{figures/Orion-B-Multiscale}
     \caption{A comparison showing the effect on the combinations due to multiscale deconvolution for two models, `m51-b' and `orion-b'. The dashed black line represents the ideal ratio for the true model comparison. }
     \label{fig:ms}
 \end{figure*}
 
 \autoref{fig:ms} shows how multiscale deconvolution affects the combinations. For each model, there are some slight variations, but in general the ratios stay consistent. The `orion-b' multiscale model does show a weird overshoot in the power for the joint deconvolution which does not show up in any other `orion-b' models. 
 
+
+
+%---------------------------------------------------------------------------------------------------
 
 \section{Conclusion}
 
@@ -149,6 +162,9 @@ In regards to the depth of cleaning, in general, more is better. Joint deconvolu
 
 The multiscale analysis shows that there really is not much effect from using multiscale cleaning. There could be more testing done by using different scales and using different models that may lend more towards multiscale's favor with very complex, intricate structures. 
 
+
+
+%---------------------------------------------------------------------------------------------------
 
 \acknowledgments
 Thank you to Dr. Kumar Golap and Dr. Takahiro Tsutsumi for their guidance and assistance. This work was funded by the National Science Foundation in partnership with the National Radio Astronomy Observatory and Associated Universities Incorporated.
@@ -183,9 +199,10 @@ The following table describes the parameters used for cleaning the model images.
 For data tables of every single comparison, visit the \href{https://gitlab.com/mileslucas/rica/tree/master/docs/static/ratios}{RICA repository}.
 
 \input{fig1set}
+
 \begin{figure*}[h!]
 	\includegraphics[width=\textwidth]{figures/results/combined-ms__model_vs_feather}
-	\caption{Comparison of feather combination to the true model for combined simulation. The ratio is \autoref{eqn:ratio}. The black ticks are error bars on a scaled uncertainty based on \autoref{eqn:ratio-err}. The vertical lines are the maximum UV distance of the interferometer at the longest and shortest wavelengths, respectively. The complete figure set (125 figures) is available at the \href{https://gitlab.com/mileslucas/rica/tree/master/docs/static/figures/results}{RICA repository}.}
+	\caption{Comparison of feather combination to the true model for combined simulation. The ratio is \autoref{eqn:ratio}. The black ticks are error bars on a scaled uncertainty based on \autoref{eqn:ratio-err}. The vertical lines are the maximum UV distance of the interferometer at the longest and shortest wavelengths, respectively. The complete figure set (125 figures) is available at the \href{https://gitlab.com/mileslucas/rica/tree/master/docs/static/images/results}{RICA repository}.}
 \end{figure*}
 
 \end{document}

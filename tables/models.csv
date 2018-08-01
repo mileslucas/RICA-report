@@ -2,6 +2,7 @@
 points,points,VLA d,100 m,"[64, 64]",7.00arcsec,100000,100,1e-5Jy,hogbom,,No
 gauss,gauss,VLA d,100 m,"[64, 64]",7.00arcsec,100000,100,1e-5Jy,hogbom,,No
 combined,combined,VLA d,100 m,"[64, 64]",7.00arcsec,100000,100,1e-5Jy,hogbom,,No
+combined-sp,combined,VLA d,100 m,"[64, 64]",7.00arcsec,100000,100,1e-5Jy,hogbom,,No
 combined-n0,combined,VLA d,100 m,"[64, 64]",7.00arcsec,0,100,1e-5Jy,hogbom,,No
 combined-n100,combined,VLA d,100 m,"[64, 64]",7.00arcsec,100,100,1e-5Jy,hogbom,,No
 combined-n1000,combined,VLA d,100 m,"[64, 64]",7.00arcsec,1000,100,1e-5Jy,hogbom,,No
@@ -23,4 +24,4 @@ orion-b-25-ms,orion,VLA b,25 m,"[700, 700]",0.65arcsec,100000,400,1e-9Jy,multisc
 orion-c,orion,VLA c,100 m,"[216, 216]",2.12arcsec,100000,400,1e-9Jy,hogbom,,No
 RXJ1347,RXJ1347,VLA a,100 m,"[2268, 2268]",0.20arcsec,100000,100,1e-6Jy,hogbom,,No
 RXJ1347-masked,RXJ1347,VLA a,100 m,"[2268, 2268]",0.20arcsec,100000,100,1e-6Jy,hogbom,,Yes
-ppd,ppd,ALMA,ACA,"[192, 192]",0.01arcsec,100000,100,1e-7Jy,hogbom,,No
+ppd,ppd,ALMA 20,12 m,"[192, 192]",0.01arcsec,100000,100,1e-7Jy,hogbom,,No
