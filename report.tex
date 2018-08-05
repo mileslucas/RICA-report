@@ -126,8 +126,7 @@ If there is no true model, it is still useful to test and compare against the to
 \section{Results}
 
 \begin{figure*}[ht]
-    \includegraphics[width=.65\textwidth]{figures/sd_comp}
-    \includegraphics[width=.32\textwidth]{figures/uv_cover}
+    \includegraphics[width=\textwidth]{figures/sd_size_comp}
     \caption{The left two plots are ratios for each combination method between two different single dish sizes. The horizontal line marks the ideal ratio for close UV spacing. The right plot shows the UV coverage of the interferometer with the coverage of the \SI{100}{\meter} and \SI{25}{\meter} single dishes overlaid.}
     \label{fig:sd-size}
 \end{figure*}
@@ -144,15 +143,30 @@ Next, \autoref{fig:iters} shows the effect that depth of cleaning has on the pow
 
 \begin{figure*}[ht]
     \includegraphics[width=0.49\textwidth]{figures/M51-B-Multiscale}
-    \includegraphics[width=0.49\textwidth]{figures/Orion-B-Multiscale}
+    \includegraphics[width=0.49\textwidth]{figures/Orion-B-25m-Multiscale}
     \caption{A comparison showing the effect on the combinations due to multiscale deconvolution for two models, `m51-b' and `orion-b'. The dashed black line represents the ideal ratio for the true model comparison. }
     \label{fig:ms}
 \end{figure*}
 
-\autoref{fig:ms} shows how multiscale deconvolution affects the combinations. For each model, there are some slight variations, but in general the ratios stay consistent. The `orion-b' multiscale model does show a weird overshoot in the power for the joint deconvolution which does not show up in any other `orion-b' models. 
+\autoref{fig:ms} shows how multiscale deconvolution affects the combinations. For each model, there are some slight variations, but in general the ratios stay consistent. The `orion-b-25' multiscale model shows how multiscale can improve efficiency for joint deconvolution when the single dish overlap is low. The `orion-b' multiscale model (not shown) does not show much change between deconvolvers except for an unexplained overshoot in the multiscale joint deconvolution.
+
+\begin{figure*}[ht]
+    \includegraphics[width=0.49\textwidth]{figures/Points-Masked}
+    \includegraphics[width=0.49\textwidth]{figures/Orion-B-Masked}
+    \caption{A comparison showing the effect on the combinations due to masking for two models, `points' and `orion-b'. The dashed black line represents the ideal ratio for the true model comparison. }
+    \label{fig:masked}
+\end{figure*}
+
+\autoref{fig:masked} shows the effect masking has on the combinations. For the simple `points' model masking causes issues, especially with startmodel. Also, in the `orion-b' model, the startmodel value falls at \num{0} UV spacing, as well as the plain, cleaned image. In general, the masking decreases the convergence of the combination methods at the same clean level and may have further affects by changing the performance of the uncombined image. This is also apparent in the `RXJ1347' masked model, where the \num{0} UV spacing value does not change but the convergence is definitely affected.
 
 
+\begin{figure*}[ht]
+    \includegraphics[width=\textwidth]{figures/complexity-plot}
+    \caption{A comparison of many models. The top row are `simple' models that do not contain much structure or extended emission, whereas the second row contains more complex models with different structural scales and interesting phenomenon (Sunyaev-–Zel'dovich effect in RXJ1347).}
+    \label{fig:complex}
+\end{figure*}
 
+\autoref{fig:complex} shows an overview of the performance of different models. Simpler models with point sources and Gaussians converge at a ratio of \num{1} and show very little difference until scales at hundredths of a ratio. The more complex models have no easy, clear trend. Each one of these combinations is highly dependent on the structure and parameters. It is interesting that the ALMA `PPD' model only performs well with startmodel and that \textit{feather} and joint deconvolution actually perform worse than the uncombined image. 
 %---------------------------------------------------------------------------------------------------
 
 \section{Conclusion}
@@ -161,7 +175,7 @@ From the results of the single dish sizes, the main factor in algorithm success 
 
 In regards to the depth of cleaning, in general, more is better. Joint deconvolution seemed to work for any dirty image with enough single dish coverage, but for future studies, it would be nice to try and see if joint deconvolution works for dirty images of many more models. In conjunction with the study on single dish size, there were no combinations that retrieved the total power information well from the dirty image due to insufficient single dish coverage\footnote{see \href{https://gitlab.com/mileslucas/rica/blob/master/docs/static/ratios/orion-b-25-n0__model.csv}{'orion-b-25-n0' ratio data}}
 
-The multiscale analysis shows that there really is not much effect from using multiscale cleaning. There could be more testing done by using different scales and using different models that may lend more towards multiscale's favor with very complex, intricate structures. 
+The multiscale analysis shows that using the multiscale deconvolver can make up for lack of single dish UV coverage in some instances. When there is already decent 
 
 
 
