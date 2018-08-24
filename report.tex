@@ -1,4 +1,4 @@
-\documentclass[manuscript,linenumbers]{aastex62}
+\documentclass[preprint]{aastex62}
 
 \usepackage{graphicx}
 \usepackage{hyperref}
@@ -21,7 +21,7 @@
  
 
 \begin{abstract}
-
+This paper reports on the methodology and some results of testing methods and parameters of combining single dish and interferometer radio images. The metric for analyzing combinations used a ratio of the power spectrum densities of a test image and a true model to determine the accuracy of close UV-spacings. The methods tested were CASA's \textit{feather} task, using a startmodel in CASA's \textit{clean} task, a modified joint-deconvolution CLEAN algorithm, and \textit{tp2vis}. Using simulated images based on the VLA and GBT telescopes of models with various amounts and sizes of structures, many permutations of simulation and imaging parameters were tested along with the combination methods. Some preliminary conclusions are that feathering is weak without adequate single-dish UV coverage overlap, joint deconvolution works well with dirty images, multiscale deconvolution performed well with joint deconvolution with low single-dish UV coverage overlap, and images with few, simple sources do not benefit from combinations in this testing. In addition, this paper presents an open-source codebase to allow researchers to test their own models and parameter permutations to determine their best options for combining data.
 \end{abstract}
 
 %---------------------------------------------------------------------------------------------------
@@ -131,7 +131,7 @@ If there is no true model, it is still useful to test and compare against the to
     \label{fig:sd-size}
 \end{figure*}
 
-For fidelity images and ratios of every comparison, see \autoref{sec:model-results}. This section will only comment on a few models and comparison highlighting trends. The effect of single dish size was apparent on the accuracy of combinations. \autoref{fig:sd-size} shows how the ratios compare between the \SI{100}{\meter} single dish size for the Orion model in B configuration and the \SI{25}{\meter} single dish size of the same model. Notably, \textit{feather} does not work as well for small single dish sizes. Both start model and joint deconvolution combination methods are able to do better than the plain interferometer with the small dish, but still do not reach that ideal ratio that is possible for the larger single dish. Looking at the coverage of the single dishes, the \SI{25}{\meter} dish does not overlap with the interferometer data at all.
+For fidelity images and ratios of every comparison, see \autoref{sec:model-results} or the \href{https://mileslucas.gitlab.io/rica/index.html}{gitlab page}. This section will only comment on a few models and comparison highlighting trends. The effect of single dish size was apparent on the accuracy of combinations. \autoref{fig:sd-size} shows how the ratios compare between the \SI{100}{\meter} single dish size for the Orion model in B configuration and the \SI{25}{\meter} single dish size of the same model. Notably, \textit{feather} does not work as well for small single dish sizes. Both start model and joint deconvolution combination methods are able to do better than the plain interferometer with the small dish, but still do not reach that ideal ratio that is possible for the larger single dish. Looking at the coverage of the single dishes, the \SI{25}{\meter} dish does not overlap with the interferometer data at all.
 
 \begin{figure*}[ht]
     \includegraphics[width=\textwidth]{figures/iter-plot}
@@ -173,9 +173,11 @@ Next, \autoref{fig:iters} shows the effect that depth of cleaning has on the pow
 
 From the results of the single dish sizes, the main factor in algorithm success is the amount of overlap of the single dish and interferometer data. This could be the reason why feather fails so much and why joint deconvolution and start model are not quite as good, either. Future studies might find the point at which there is enough overlay for each method to ``succeed". 
 
-In regards to the depth of cleaning, in general, more is better. Joint deconvolution seemed to work for any dirty image with enough single dish coverage, but for future studies, it would be nice to try and see if joint deconvolution works for dirty images of many more models. In conjunction with the study on single dish size, there were no combinations that retrieved the total power information well from the dirty image due to insufficient single dish coverage\footnote{see \href{https://gitlab.com/mileslucas/rica/blob/master/docs/static/ratios/orion-b-25-n0__model.csv}{'orion-b-25-n0' ratio data}}
+In regards to the depth of cleaning, in general, more is better. Joint deconvolution seemed to work for any dirty image with enough single dish coverage, but for future studies, it would be nice to try and see if joint deconvolution works for dirty images of many more models. In conjunction with the study on single dish size, there were no combinations that retrieved the total power information well from the dirty image due to insufficient single dish coverage.
 
-The multiscale analysis shows that using the multiscale deconvolver can make up for lack of single dish UV coverage in some instances. When there is already decent 
+The multiscale analysis shows that using the multiscale deconvolver can make up for lack of single dish UV coverage in some instances. When there is already decent single dish UV coverage, though, there does not seem to be a significant effect. Also, simple models of few Gaussian or point sources converge when cleaned appropriately, regardless of the methods or parameters of combination, even skipping any combination method retained the close-spacing information well enough in this study.
+
+There are many more permutations of simulation and imaging parameters to test, though. Especially simulating using telescopes other than the VLA and GBT. In addition, results from \textit{tp2vis} would be a nice supplement to the current results. The codebase of RICA lends itself to open-source development and use, though. So it is encouraged to attempt different models and parameters instead of relying on this sole paper for seeing the differences given your own datasets. Hopefully this code will allow a better understanding of the differences in single dish combination methods. 
 
 
 
